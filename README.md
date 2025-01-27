@@ -1,0 +1,2 @@
+# django_create_language_demoproject
+django_create_language_demoproject_using docker
