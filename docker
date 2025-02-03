@@ -1,0 +1,9 @@
+1) pull docker image
+    docker pull image-name
+2) check docker images
+    docker images
+3) check docker containers
+    docker ps -a
+4) run docker image
+    docker run --name projectname nginx:version
+5) 

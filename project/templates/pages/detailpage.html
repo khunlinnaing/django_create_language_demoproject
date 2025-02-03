@@ -1,0 +1,196 @@
+{% extends 'index.html'%}
+{% block content %}
+<div class="container">
+    <h2 class="text-center">{{page}} Page Detail</h2>
+    {% if messages %}
+        {% for message in messages %}
+        {% if message %}
+        <div
+            class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+            <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+        </div>
+        {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="row my-3 justify-content-md-end">
+        <button class="btn btn-success w-25 add-page-new-key">Add new key</button>
+    </div>
+    <div class="row my-3">
+        <form class="d-flex w-25" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" name='search' aria-label="Search" value="{% if request.GET.search %}{{ request.GET.search }}{% endif %}">
+          <button class="btn btn-outline-success page_detail_search" type="submit">Search</button>
+        </form>
+    </div>
+    <div class="row my-3">
+        <form class="border border-secondary p-3 d-none add-newkeypage" method="POST" action="{% url 'addnewkey' %}">
+            {% csrf_token %}
+            <input type="hidden" name="pageidvalue" value="{{pageid}}">
+            <h3 class="text-center">Create New Key and Value for Page</h3>
+            <div class="form-group">
+                <label>New Key</label>
+                <input type="text" class="form-control pagedetailkey" name="pagedetailkey">
+            </div>
+            <div class="form-group my-3">
+                <label>New Name</label>
+                <textarea type="text" name="pagedetailvalue" rows="4" class="form-control"></textarea>
+            </div>
+            <div class="form-group mt-4">
+                <button class="btn btn-success btn_create_pagedetail">Create</button>
+                <button class="btn btn-danger btn_create_pagedetail_cancel">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <th>No</th>
+            <th>Languages</th>
+            <th>Pages name</th>
+            <th>Languages Keies</th>
+            <th>Languages Values</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            {% if pagekeys %}
+            {% for pagekey in pagekeys %}
+            <tr>
+                <td>{{ forloop_start_index|add:forloop.counter }}</td>
+                <td>{{pagekey.lang.lang_name}}</td>
+                <td>{{pagekey.page.page_name}}</td>
+                <td>{{pagekey.key}}</td>
+                <td>
+                    <p>{{pagekey.value}}</p>
+                    <form method="POST" class="d-none">
+                        {% csrf_token %}
+                        <input type="hidden" name="languagekeyid" value="{{pagekey.id}}">
+                        <textarea type="text" name="languagevalue" rows="4" cols="50">{{pagekey.value}}</textarea>
+                    </form>
+                </td>
+                <td>
+                    <button class="btn btn-primary update-detail">Update</button>
+                    <button class="btn btn-success change_page-detail d-none">Change</button>
+                    <button class="btn btn-secondary update-cancel-detail d-none">Cancel</button>
+                    <a href="{% url 'deletekey' pagekey.key %}?pageid={{ pagekey.page.id }}" class="btn btn-danger">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr><td colspan="6"><p class="text-danger">No Data</p></td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+    {% if pagekeys %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+            <!-- Previous button -->
+            {% if pagekeys.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pagekeys.previous_page_number }}" aria-label="Previous">
+                        Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Previous</a>
+                </li>
+            {% endif %}
+        
+            <!-- Ellipsis before current page -->
+            {% if pagekeys.number > 2 %}
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            {% endif %}
+        
+            <!-- Display pages around the current page -->
+            {% for num in pagekeys.paginator.page_range %}
+                {% if num >= pagekeys.number|add:-1 and num <= pagekeys.number|add:1 %}
+                    <li class="page-item {% if pagekeys.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        
+            <!-- Ellipsis after current page -->
+            {% if pagekeys.number < pagekeys.paginator.num_pages|add:-1 %}
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            {% endif %}
+        
+            <!-- Next button -->
+            {% if pagekeys.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pagekeys.next_page_number }}" aria-label="Next">
+                        Next
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+<script>
+    $(document).ready(function(){
+        $('button.update-detail').click(function(){
+            $(this).closest('tr').find('td').eq(4).find('p').addClass('d-none');
+            $(this).addClass('d-none');
+            $(this).closest('tr').find('td').eq(4).find('form').removeClass('d-none');
+            $(this).siblings('button.change_page-detail').removeClass('d-none');
+            $(this).siblings('button.update-cancel-detail').removeClass('d-none');
+        });
+        $('button.update-cancel-detail').click(function(){
+            $(this).addClass('d-none');
+            $(this).closest('tr').find('td').eq(4).find('p').removeClass('d-none');
+            // $(this).removeClass('d-none');
+            $(this).closest('tr').find('td').eq(4).find('form').addClass('d-none');
+            $(this).siblings('button.change_page-detail').addClass('d-none');
+            $(this).siblings('button.update-detail').removeClass('d-none');
+        });
+        $('button.change_page-detail').click(function(){
+            var keyid=$(this).closest('tr').find('td').eq(4).find('form').children('input').eq(1).val();
+            var keyvalue=$(this).closest('tr').find('td').eq(4).find('form').children('input').eq(2).val();
+            if(keyvalue =='' || keyid ==''){
+                alert('Something was wrong.')
+            }else{
+                $(this).closest('tr').find('td').eq(4).find('form').submit();
+            }
+        });
+        $('button.add-page-new-key').click(function(){
+            $('form.add-newkeypage').removeClass('d-none');
+        });
+        $('button.btn_create_pagedetail_cancel').click(function(e){
+            e.preventDefault();
+            $('form.add-newkeypage').addClass('d-none');
+        });
+        $('.page_detail_search').click(function(){
+            $(this).parent('form').submit();
+        });
+        $('button.btn_create_pagedetail').click(function(e){
+            e.preventDefault()
+            $('div.keyerror, div.valueerror').remove();
+            var keyname = $('input[type="text"]').val()
+            var keyvalue = $('textarea[type="text"]').val()
+            var validInput = /^[a-z_]*$/;
+            if(keyname ==''){
+                $('input[type="text"]').after(`<div class='keyerror'>
+                    <p class="text-danger">This is required fields.</p>
+                </div>`);
+            }else if(!validInput.test(keyname)){
+                $('input[type="text"]').after(`<div>
+                    <p class="text-danger">Please Enter a to z and _ only</p>
+                </div>`);
+            }
+            if(keyvalue ==''){
+                $('textarea[name="pagedetailvalue"]').after(`<div class='valueerror'>
+                    <p class="text-danger">This is required fields.</p>
+                </div>`);
+            }
+            if(keyname !='' && validInput.test(keyname) && keyvalue !=''){
+                $(this).parent('div').parent('form').submit();
+            }else{
+                alert('error')
+            }
+        });
+    });
+</script>
+{% endblock%}

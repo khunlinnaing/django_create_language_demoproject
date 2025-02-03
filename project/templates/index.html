@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block navigation %}PHI Company Limited{% endblock %}</title>
+  <link href="{% static './css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static './fonts/Rubik_Vinyl/RubikVinyl-Regular.ttf' %}" rel="stylesheet">
+  <link href="{% static './css/customcss.css' %}" rel="stylesheet">
+  <script src="{% static './js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static './js/jquery.min.js' %}"></script>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="/">PHI Company Limited</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="/">Images</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/pages">Page</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="/lang">Languages</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Dropdown
+              </a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="#">Action</a></li>
+                <li><a class="dropdown-item" href="#">Another action</a></li>
+                <li>
+                  <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="#">Something else here</a></li>
+              </ul>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+            </li>
+          </ul>
+          <form class="d-flex" role="search">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+
+  {% block content %}
+  <h1 class="text-center">WebSite Pages</h1>
+  <div class="container">
+    <div class="row my-3 justify-content-md-end">
+      <button class="btn btn-success w-25 add_new_image">Add new Image</button>
+    </div>
+    <div class="row my-3">
+      <form class="d-flex w-25" role="search">
+        <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+      </form>
+    </div>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message %}
+        <div
+          class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+          <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    {% if request.GET.status %}
+    <div class="alert alert-success">
+      {{ request.GET.status }}
+    </div>
+    {% endif %}
+    {% if request.GET.error %}
+    <div class="alert alert-danger">
+      {{ request.GET.error }}
+    </div>
+    {% endif %}
+    <div class="row my-3 create_image_form_hidde d-none">
+      <form class="border border-secondary p-3" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h3 class="text-center">New Page</h3>
+        <div class="form-group">
+          <label>Pages</label>
+          <select class="form-control" name="page">
+            {% for pagename in pagesval %}
+              {% if pagename.page_name != 'error'%}
+                <option value="{{pagename.id}}">{{ pagename.page_name }}</option>
+              {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>New Image Key</label>
+          <input type="text" class="form-control image_key" name="image_key">
+        </div>
+        <div class="form-group">
+          <label>New Image</label>
+          <input type="file" class="form-control image" name="image">
+        </div>
+        <div class="form-group mt-4">
+          <button class="btn btn-success btn_create_image">Create</button>
+          <button class="btn btn-danger btn_create_cancel_image">Cancel</button>
+        </div>
+      </form>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <th>No</th>
+        <th>Pages name</th>
+        <th>Image Keys</th>
+        <th>Images</th>
+        <th>Actions</th>
+      </thead>
+      <tbody>
+        {% for page in pages %}
+        <tr>
+          <td>{{ forloop_start_index|add:forloop.counter }}</td>
+          <td>{{page.page}}</td>
+          <td>{{page.image_key}}</td>
+          <td><img src="{{ page.image.url }}" width="100px"></td>
+          <td>
+            <a href="{% url 'updatepageimage' page.id %}" class="btn btn-primary">Update</a>
+            <a href="{% url 'deletepageimage' page.id %}" class="btn btn-danger delete_page_btn">Delete</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-end">
+        <!-- Previous button -->
+        {% if pages.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ pages.previous_page_number }}" aria-label="Previous">
+            Previous
+          </a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+          <a class="page-link">Previous</a>
+        </li>
+        {% endif %}
+
+        <!-- Ellipsis before current page -->
+        {% if pages.number > 2 %}
+        <li class="page-item disabled"><a class="page-link">...</a></li>
+        {% endif %}
+
+        <!-- Display pages around the current page -->
+        {% for num in pages.paginator.page_range %}
+        {% if num >= pages.number|add:-1 and num <= pages.number|add:1 %} <li
+          class="page-item {% if pages.number == num %}active{% endif %}">
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+
+          <!-- Ellipsis after current page -->
+          {% if pages.number < pages.paginator.num_pages|add:-1 %} <li class="page-item disabled"><a
+              class="page-link">...</a></li>
+            {% endif %}
+
+            <!-- Next button -->
+            {% if pages.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ pages.next_page_number }}" aria-label="Next">
+                Next
+              </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+              <a class="page-link">Next</a>
+            </li>
+            {% endif %}
+      </ul>
+    </nav>
+
+  </div>
+  <script>
+    $(document).ready(function () {
+      $('button.add_new_image').click(function () {
+        $('div.create_image_form_hidde').removeClass('d-none');
+      });
+
+      $('.btn_create_cancel_image').click(function (e) {
+        e.preventDefault();
+        $('div.create_image_form_hidde').addClass('d-none');
+      });
+
+      $('.btn_create_image').click(function (e) {
+        var validInput = /^[a-z_]*$/;
+        var file = $('input.image').val()
+        var fileExtension = file.split('.').pop().toLowerCase();
+        e.preventDefault();
+        $('p.text-danger').remove()
+        if ($('input.image_key').val() == '') {
+          $('input.image_key').after(`<p class='text-danger'>Please enter Image Key</p>`)
+        } else if (!validInput.test($('input.image_key').val())) {
+          $('input.image_key').after(`<p class='text-danger'>Please Enter a to z and _ only</p>`)
+        }
+
+        if (file == '') {
+          $('input.image').after(`<p class='text-danger'>Please enter Image</p>`)
+        } else if (fileExtension !== 'jpg' && fileExtension !== 'png') {
+          $('input.image').after(`<p class='text-danger'>Please upload a .jpg or .png file</p>`);
+        }
+        if (file != '' && (fileExtension == 'jpg' || fileExtension == 'png') && validInput.test($('input.image_key').val()) && $('input.image_key').val() != '') {
+
+          $('div.create_image_form_hidde').children('form').submit();
+        } else {
+          console.log(fileExtension)
+          console.log('error')
+        }
+      });
+    })
+  </script>
+  {% endblock %}
+</body>
+
+</html>

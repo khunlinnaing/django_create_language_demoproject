@@ -1,0 +1,149 @@
+{% extends 'index.html'%}
+{% block content %}
+<h1 class="text-center">Languages Pages</h1>
+<div class="container">
+    <div class="row my-3 justify-content-md-end">
+        <button class="btn btn-success w-25 add_new_lang">Add new Language</button>
+    </div>
+    <div class="row my-3">
+        <form class="d-flex w-25" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" name='search' aria-label="Search" value="{% if request.GET.search %}{{ request.GET.search }}{% endif %}">
+          <button class="btn btn-outline-success lang_search" type="submit">Search</button>
+        </form>
+    </div>
+    {% if messages %}
+      {% for message in messages %}
+        {% if message %}
+        <div
+          class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+          <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    <div class="row my-3 create_lang_form_hidde d-none">
+        <form class="border border-secondary p-3" method="POST">
+            {% csrf_token %}
+            <h3 class="text-center">New Page</h3>
+            <div class="form-group">
+                <label>New Language Key</label>
+                <input type="text" class="form-control langkey" name="langkey">
+            </div>
+            <div class="form-group">
+                <label>New Language Name</label>
+                <input type="text" class="form-control langname" name="langname">
+            </div>
+            <div class="form-group mt-4">
+                <button class="btn btn-success btn_create_lang">Create</button>
+                <button class="btn btn-danger btn_create_cancel_lang">Cancel</button>
+            </div>
+        </form>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <th>No</th>
+            <th>Keys</th>
+            <th>Languages</th>
+            <th>Actions</th>
+        </thead>
+        <tbody>
+            {% if pages %}
+            {% for page in pages %}
+            <tr>
+                <td>{{ forloop_start_index|add:forloop.counter }}</td>
+                <td>{{page.lang_key}}</td>
+                <td>{{page.lang_name}}</td>
+                <td>
+                    <a href="{% url 'langupdate' page.id %}" class="btn btn-primary">Update</a>
+                    <a href="{% url 'deletelang' page.id %}" class="btn btn-danger delete_page_btn">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% else %}
+            <tr><td colspan="4"><p class="text-danger">No data</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+    {% if pages %}
+    <nav aria-label="Page navigation example">
+        <ul class="pagination justify-content-end">
+            <!-- Previous button -->
+            {% if pages.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pages.previous_page_number }}" aria-label="Previous">
+                        Previous
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Previous</a>
+                </li>
+            {% endif %}
+        
+            <!-- Ellipsis before current page -->
+            {% if pages.number > 2 %}
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            {% endif %}
+        
+            <!-- Display pages around the current page -->
+            {% for num in pages.paginator.page_range %}
+                {% if num >= pages.number|add:-1 and num <= pages.number|add:1 %}
+                    <li class="page-item {% if pages.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        
+            <!-- Ellipsis after current page -->
+            {% if pages.number < pages.paginator.num_pages|add:-1 %}
+                <li class="page-item disabled"><a class="page-link">...</a></li>
+            {% endif %}
+        
+            <!-- Next button -->
+            {% if pages.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ pages.next_page_number }}" aria-label="Next">
+                        Next
+                    </a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link">Next</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+<script>
+    $(document).ready(function(){
+        $('button.add_new_lang').click(function(){
+            $('div.create_lang_form_hidde').removeClass('d-none');
+        });
+        $('.btn_create_cancel_lang').click(function(e){
+            e.preventDefault();
+            $('div.create_lang_form_hidde').addClass('d-none');
+        });
+        $('.lang_search').click(function(){
+            $(this).parent('form').submit();
+        });
+        $('.btn_create_lang').click(function(e){
+            e.preventDefault();
+            $('p.text-danger').remove()
+            var validInput = /^[a-z_]*$/;
+            if($('input.langkey').val() ==''){
+                $('input.langkey').after(`<p class='text-danger'>Please enter Language Key</p>`)
+            }else if(!validInput.test($('input.langkey').val())){
+                $('input.langkey').after(`<p class='text-danger'>Please Enter a to z and _ only</p>`)
+            }
+            if($('input.langname').val() ==''){
+                $('input.langname').after(`<p class='text-danger'>Please enter Language name</p>`)
+            }
+            if($('input.langkey').val() !='' && validInput.test($('input.langkey').val()) && $('input.langname').val() !=''){
+                $(this).parent('div').parent('form').submit()
+            }else{
+            }
+        });
+    });
+</script>
+{% endblock %}

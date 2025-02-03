@@ -1,0 +1,53 @@
+{% extends 'index.html'%}
+{% block content %}
+<h1 class="text-center">{{language.lang_name}} Page</h1>
+<div class="container">
+    {% if messages %}
+      {% for message in messages %}
+        {% if message %}
+        <div
+          class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+          <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+        </div>
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="">Key Name</label>
+            <input type="text" name="langkey" value="{{ language.lang_key }}" class="form-control">
+        </div>
+        <div class="form-group my-4">
+            <label for="">Language Name</label>
+            <input type="text" name="langname" value="{{ language.lang_name }}" class="form-control">
+        </div>
+        <div class="form-grou">
+            <button class="btn btn-success btn_change_lang">Change</button>
+            <a href="{% url 'lang' %}" class="btn btn-danger btn_change_cancel_lang">Cancel</a>
+        </div>
+    </form>
+</div>
+<script>
+    $(document).ready(function(){
+        $('button.btn_change_lang').click(function(e){
+            e.preventDefault();
+            $('p.text-danger').remove()
+            var validInput = /^[a-z_]*$/;
+            var key = $('input[name="langkey"]').val();
+            var name = $('input[name="langname"]').val();
+            if(key == ''){
+                $('input[name="langkey"]').after(`<p class='text-danger'>Please enter Language Key</p>`)
+            }else if(!validInput.test($('input[name="langkey"]').val())){
+                $('input[name="langkey"]').after(`<p class='text-danger'>Please Enter a to z and _ only</p>`)
+            }
+            if($('input[name="langname"]').val() ==''){
+                $('input[name="langname"]').after(`<p class='text-danger'>Please enter Language name</p>`)
+            }
+            if(key !='' && validInput.test($('input[name="langkey"]').val()) && name !=''){
+                $(this).parent('div').parent('form').submit()
+            }
+        });
+    });
+</script>
+{% endblock %}

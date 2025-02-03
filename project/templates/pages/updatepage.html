@@ -1,0 +1,43 @@
+{% extends 'index.html'%}
+{% block content %}
+<div class="container">
+    {% if messages %}
+        {% for message in messages %}
+            {% if message %}
+            <div
+                class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+                <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="row my-3">
+        <form class="border border-secondary p-3" method="POST">
+            {% csrf_token %}
+            <h3 class="text-center">Update {{page.page_name}}'s Page</h3>
+            <div class="form-group">
+                <label>Page Name</label>
+                <input type="hidden" class="form-control" name="pageid" value="{{page.id}}">
+                <input type="text" class="form-control pagename" name="pagename" value="{{page.page_name}}">
+            </div>
+            <div class="form-group mt-4">
+                <button class="btn btn-success btn_update_page">Create</button>
+                <a href="{% url 'page' %}" class="btn btn-danger ">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        $('.btn_update_page').click(function (e) {
+            e.preventDefault();
+            $('p.text-danger').remove()
+            if ($('input.pagename').val() == '') {
+                $('input.pagename').after(`<p class='text-danger'>Please enter Page name</p>`)
+            } else {
+                $(this).parent('div').parent('form').submit()
+            }
+        });
+    })
+</script>
+{% endblock%}

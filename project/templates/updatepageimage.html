@@ -1,0 +1,75 @@
+{% extends 'index.html'%}
+{% block content %}
+<div class="container">
+  {% if messages %}
+    {% for message in messages %}
+      {% if message %}
+      <div
+        class="alert {% if message.tags == 'error' %}alert-danger{% elif message.tags == 'success' %}alert-success{% endif %}">
+        <p class="{% if message.tags == 'error' %}text-danger{% endif %}">{{ message }}</p>
+      </div>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+    <div class="row my-3 update_image_form_hidde">
+        <form class="border border-secondary p-3" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h3 class="text-center">Update Image</h3>
+            <img src="{{image.image.url}}" class="w-25">
+            <div class="form-group">
+                <label>Pages {{page_id}}</label>
+                <select class="form-control" name="page">
+                    {% for pagename in pagesval %}
+                    {% if page_id == pagename.id %}
+                    <option value="{{pagename.id}}" selected>{{ pagename.page_name }}</option>
+                    {% else %}
+                    <option value="{{pagename.id}}">{{ pagename.page_name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>New Image Key</label>
+                <input type="text" class="form-control image_key" name="image_key" value="{{ image.image_key }}">
+            </div>
+            <div class="form-group">
+                <label>New Image</label>
+                <input type="file" class="form-control image" name="image">
+            </div>
+            <div class="form-group mt-4">
+                <button class="btn btn-success btn_update_image">Create</button>
+                <button class="btn btn-danger btn_create_cancel_image">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+      $('.btn_update_image').click(function (e) {
+        var validInput = /^[a-z_]*$/;
+        var file = $('input.image').val()
+        var fileExtension = file.split('.').pop().toLowerCase();
+        e.preventDefault();
+        $('p.text-danger').remove()
+        if ($('input.image_key').val() == '') {
+          $('input.image_key').after(`<p class='text-danger'>Please enter Image Key</p>`)
+        } else if (!validInput.test($('input.image_key').val())) {
+          $('input.image_key').after(`<p class='text-danger'>Please Enter a to z and _ only</p>`)
+        }
+
+        if (file != '') {
+            if (fileExtension !== 'jpg' && fileExtension !== 'png') {
+                $('input.image').after(`<p class='text-danger'>Please upload a .jpg or .png file</p>`);
+            }
+        } 
+        if((fileExtension == 'jpg' || fileExtension == 'png') || validInput.test($('input.image_key').val()) && $('input.image_key').val() != ''){
+
+          $('div.update_image_form_hidde').children('form').submit();
+        }else{
+          console.log(fileExtension)
+          console.log('error')
+        }
+      });
+    })
+</script>
+{% endblock%}
