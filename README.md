@@ -1,5 +1,8 @@
-# htmlcsswithdocker
-Htmlcss run with docker compose
+## Introduction project
+This is Language add key for dynamic language for website. 
+    step(1) create Languages
+    step(2) create website page
+    step(3) create key for language to use on website by dynamically 
 
 ![First Lab Image](https://github.com/khunlinnaing/django_create_language_demoproject/blob/main/django.png?raw=true)
 # Install Docker and Docker Compose
