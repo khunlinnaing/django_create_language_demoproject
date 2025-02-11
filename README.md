@@ -3,7 +3,7 @@ This project supports multiple languages, and the content can be dynamically loa
 
 ## Adding a New Language
 
-1. Add a new JSON file in the `/languages` directory for the new language. For example, `de.json` for German.
+1. Add a new JSON file in the `/swagger` directory for the new language. For example, `de.json` for German.
 2. Add the necessary translation keys and values in the new file.
 3. Make sure the keys match the ones used in the website (e.g., `greeting`, `about`).
 
