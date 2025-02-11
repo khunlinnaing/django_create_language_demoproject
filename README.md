@@ -1,8 +1,16 @@
 ## Introduction project
-This is Language add key for dynamic language for website. 
-    step(1) create Languages
-    step(2) create website page
-    step(3) create key for language to use on website by dynamically 
+This project supports multiple languages, and the content can be dynamically loaded based on the user's choice.
+
+## Adding a New Language
+
+1. Add a new JSON file in the `/languages` directory for the new language. For example, `de.json` for German.
+2. Add the necessary translation keys and values in the new file.
+3. Make sure the keys match the ones used in the website (e.g., `greeting`, `about`).
+
+## Changing Languages
+
+The user can select the language from the dropdown menu, and the content will update accordingly.
+
 
 ![First Lab Image](https://github.com/khunlinnaing/django_create_language_demoproject/blob/main/django.png?raw=true)
 # Install Docker and Docker Compose
