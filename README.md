@@ -1,7 +1,7 @@
 # htmlcsswithdocker
 Htmlcss run with docker compose
 
-![First Lab Image](https://github.com/khunlinnaing/htmlcsswithdocker/blob/main/first_lab.png?raw=true)
+![First Lab Image](https://github.com/khunlinnaing/django_create_language_demoproject/blob/main/django.png?raw=true)
 # Install Docker and Docker Compose
 
 This guide provides instructions for installing Docker and Docker Compose on your system.
